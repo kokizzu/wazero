@@ -1848,7 +1848,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 8, Arg: arg},
 			)
@@ -1858,7 +1858,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 16, Arg: arg},
 			)
@@ -1868,7 +1868,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 32, Arg: arg},
 			)
@@ -1878,7 +1878,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 64, Arg: arg},
 			)
@@ -1896,7 +1896,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 8, Arg: arg},
 			)
@@ -1906,7 +1906,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 16, Arg: arg},
 			)
@@ -1916,7 +1916,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 32, Arg: arg},
 			)
@@ -1926,7 +1926,7 @@ operatorSwitch:
 				return err
 			}
 			c.pc++
-			laneIndex := uint32(c.body[c.pc])
+			laneIndex := c.body[c.pc]
 			c.emit(
 				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 64, Arg: arg},
 			)

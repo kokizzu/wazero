@@ -589,6 +589,22 @@ func (e *engine) lowerIR(ir *wazeroir.CompilationResult) (*code, error) {
 			op.us = make([]uint64, 2)
 			op.us[0] = uint64(o.Arg.Alignment)
 			op.us[1] = uint64(o.Arg.Offset)
+		case *wazeroir.OperationLoadV128Lane:
+			op.b1 = o.LaneSize
+			op.b2 = o.LaneIndex
+			op.us = make([]uint64, 2)
+			op.us[0] = uint64(o.Arg.Alignment)
+			op.us[1] = uint64(o.Arg.Offset)
+		case *wazeroir.OperationStoreV128:
+			op.us = make([]uint64, 2)
+			op.us[0] = uint64(o.Arg.Alignment)
+			op.us[1] = uint64(o.Arg.Offset)
+		case *wazeroir.OperationStoreV128Lane:
+			op.b1 = o.LaneSize
+			op.b2 = o.LaneIndex
+			op.us = make([]uint64, 2)
+			op.us[0] = uint64(o.Arg.Alignment)
+			op.us[1] = uint64(o.Arg.Offset)
 		default:
 			return nil, fmt.Errorf("unreachable: a bug in wazeroir engine")
 		}
@@ -1962,6 +1978,95 @@ func (ce *callEngine) callNativeFunc(ctx context.Context, callCtx *wasm.CallCont
 				ce.pushValue(0)
 			}
 			frame.pc++
+		case wazeroir.OperationKindV128LoadLane:
+			lo, hi := ce.popValue(), ce.popValue()
+			offset := ce.popMemoryOffset(op)
+			switch op.b1 {
+			case 8:
+				b, ok := memoryInst.ReadByte(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				if op.b2 < 16 {
+					lo = (lo & ^(0xff << op.b2)) | uint64(b<<op.b2)
+				} else {
+					s := op.b2 - 16
+					hi = (hi & ^(0xff << s)) | uint64(b<<s)
+				}
+			case 16:
+				b, ok := memoryInst.ReadUint16Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				if op.b2 < 8 {
+					lo = (lo & ^(0xff_ff << op.b2)) | uint64(b<<op.b2)
+				} else {
+					s := op.b2 - 8
+					hi = (hi & ^(0xff_ff << s)) | uint64(b<<s)
+				}
+			case 32:
+				b, ok := memoryInst.ReadUint32Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				if op.b2 < 4 {
+					lo = (lo & ^(0xff_ff_ff_ff << op.b2)) | uint64(b<<op.b2)
+				} else {
+					s := op.b2 - 4
+					hi = (hi & ^(0xff_ff_ff_ff << s)) | uint64(b<<s)
+				}
+			case 64:
+				b, ok := memoryInst.ReadUint64Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				if op.b2 == 0 {
+					lo = b
+				} else {
+					hi = b
+				}
+			}
+			ce.pushValue(lo)
+			ce.pushValue(hi)
+			frame.pc++
+		case wazeroir.OperationKindV128Store:
+			lo, hi := ce.popValue(), ce.popValue()
+			offset := ce.popMemoryOffset(op)
+			memoryInst.WriteUint64Le(ctx, offset, lo)
+			memoryInst.WriteUint64Le(ctx, offset+8, hi)
+		case wazeroir.OperationKindV128StoreLane:
+			lo, hi := ce.popValue(), ce.popValue()
+			offset := ce.popMemoryOffset(op)
+			var ok bool
+			switch op.b1 {
+			case 8:
+				if op.b2 < 16 {
+					ok = memoryInst.WriteByte(ctx, offset, byte(lo>>op.b2*8))
+				} else {
+					ok = memoryInst.WriteByte(ctx, offset, byte(hi>>(op.b2-16)*8))
+				}
+			case 16:
+				if op.b2 < 8 {
+					ok = memoryInst.WriteUint16Le(ctx, offset, uint16(lo>>op.b2*16))
+				} else {
+					ok = memoryInst.WriteUint16Le(ctx, offset, uint16(lo>>(op.b2-8)*16))
+				}
+			case 32:
+				if op.b2 < 4 {
+					ok = memoryInst.WriteUint32Le(ctx, offset, uint32(lo>>op.b2*16))
+				} else {
+					ok = memoryInst.WriteUint32Le(ctx, offset, uint32(lo>>(op.b2-4)*16))
+				}
+			case 64:
+				if op.b2 == 0 {
+					ok = memoryInst.WriteUint64Le(ctx, offset, lo)
+				} else {
+					ok = memoryInst.WriteUint64Le(ctx, offset, hi)
+				}
+			}
+			if !ok {
+				panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+			}
 		}
 	}
 	ce.popFrame()

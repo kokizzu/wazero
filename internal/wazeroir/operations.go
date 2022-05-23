@@ -1269,9 +1269,9 @@ func (o *OperationLoadV128) Kind() OperationKind {
 // OperationLoadV128Lane implements Operation.
 type OperationLoadV128Lane struct {
 	// LaneIndex is >=0 && <(128/LaneSize).
-	LaneIndex uint32
+	LaneIndex byte
 	// LaneSize is either 8, 16, 32, or 64.
-	LaneSize uint32
+	LaneSize byte
 	Arg      *MemoryArg
 }
 
@@ -1293,9 +1293,9 @@ func (o *OperationStoreV128) Kind() OperationKind {
 // OperationStoreV128Lane implements Operation.
 type OperationStoreV128Lane struct {
 	// LaneIndex is >=0 && <(128/LaneSize).
-	LaneIndex uint32
+	LaneIndex byte
 	// LaneSize is either 8, 16, 32, or 64.
-	LaneSize uint32
+	LaneSize byte
 	Arg      *MemoryArg
 }
 

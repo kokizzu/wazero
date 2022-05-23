@@ -1127,6 +1127,9 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				if laneCeil := byte(128 / 8); lane >= laneCeil {
 					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
 				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
+				}
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load8LaneName, err)
 				}
@@ -1144,6 +1147,9 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				lane := body[pc]
 				if laneCeil := byte(128 / 16); lane >= laneCeil {
 					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
 				}
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load16LaneName, err)
@@ -1163,6 +1169,9 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				if laneCeil := byte(128 / 32); lane >= laneCeil {
 					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
 				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
+				}
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load32LaneName, err)
 				}
@@ -1180,6 +1189,9 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				lane := body[pc]
 				if laneCeil := byte(128 / 64); lane >= laneCeil {
 					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
 				}
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load64LaneName, err)
