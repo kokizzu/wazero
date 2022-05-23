@@ -1,6 +1,8 @@
 package wazeroir
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type UnsignedInt byte
 
@@ -391,6 +393,9 @@ const (
 	OperationKindConstV128
 	OperationKindV128Add
 	OperationKindV128Load
+	OperationKindV128LoadLane
+	OperationKindV128Store
+	OperationKindV128StoreLane
 )
 
 type Label struct {
@@ -1259,4 +1264,42 @@ type OperationLoadV128 struct {
 // Kind implements Operation.Kind.
 func (o *OperationLoadV128) Kind() OperationKind {
 	return OperationKindV128Load
+}
+
+// OperationLoadV128Lane implements Operation.
+type OperationLoadV128Lane struct {
+	// LaneIndex is >=0 && <(128/LaneSize).
+	LaneIndex uint32
+	// LaneSize is either 8, 16, 32, or 64.
+	LaneSize uint32
+	Arg      *MemoryArg
+}
+
+// Kind implements Operation.Kind.
+func (o *OperationLoadV128Lane) Kind() OperationKind {
+	return OperationKindV128LoadLane
+}
+
+// OperationStoreV128 implements Operation.
+type OperationStoreV128 struct {
+	Arg *MemoryArg
+}
+
+// Kind implements Operation.Kind.
+func (o *OperationStoreV128) Kind() OperationKind {
+	return OperationKindV128Store
+}
+
+// OperationStoreV128Lane implements Operation.
+type OperationStoreV128Lane struct {
+	// LaneIndex is >=0 && <(128/LaneSize).
+	LaneIndex uint32
+	// LaneSize is either 8, 16, 32, or 64.
+	LaneSize uint32
+	Arg      *MemoryArg
+}
+
+// Kind implements Operation.Kind.
+func (o *OperationStoreV128Lane) Kind() OperationKind {
+	return OperationKindV128StoreLane
 }

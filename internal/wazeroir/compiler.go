@@ -1842,6 +1842,94 @@ operatorSwitch:
 			c.emit(
 				&OperationLoadV128{Type: LoadV128Type64zero, Arg: arg},
 			)
+		case wasm.OpcodeVecV128Load8Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Load8LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 8, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Load16Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Load16LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 16, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Load32Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Load32LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 32, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Load64Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Load64LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationLoadV128Lane{LaneIndex: laneIndex, LaneSize: 64, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Store:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128StoreName)
+			if err != nil {
+				return err
+			}
+			c.emit(
+				&OperationStoreV128{Arg: arg},
+			)
+		case wasm.OpcodeVecV128Store8Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Store8LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 8, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Store16Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Store16LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 16, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Store32Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Store32LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 32, Arg: arg},
+			)
+		case wasm.OpcodeVecV128Store64Lane:
+			arg, err := c.readMemoryArg(wasm.OpcodeVecV128Store64LaneName)
+			if err != nil {
+				return err
+			}
+			c.pc++
+			laneIndex := uint32(c.body[c.pc])
+			c.emit(
+				&OperationStoreV128Lane{LaneIndex: laneIndex, LaneSize: 64, Arg: arg},
+			)
 		default:
 			return fmt.Errorf("unsupported vector instruction in wazeroir: 0x%x", op)
 		}
