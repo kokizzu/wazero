@@ -31,6 +31,24 @@ func (m *Module) validateFunction(enabledFeatures Features, idx Index, functions
 	return m.validateFunctionWithMaxStackValues(enabledFeatures, idx, functions, globals, memory, tables, maximumValuesOnStack, declaredFunctionIndexes)
 }
 
+func readMemArg(pc uint64, body []byte) (align, offset uint32, read uint64, err error) {
+	align, num, err := leb128.DecodeUint32(bytes.NewReader(body[pc:]))
+	if err != nil {
+		err = fmt.Errorf("read memory align: %v", err)
+		return
+	}
+	read += num
+
+	offset, num, err = leb128.DecodeUint32(bytes.NewReader(body[pc+num:]))
+	if err != nil {
+		err = fmt.Errorf("read memory offset: %v", err)
+		return
+	}
+
+	read += num
+	return align, offset, read, nil
+}
+
 // validateFunctionWithMaxStackValues is like validateFunction, but allows overriding maxStackValues for testing.
 //
 // * maxStackValues is the maximum height of values stack which the target is allowed to reach.
@@ -63,10 +81,11 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				return fmt.Errorf("unknown memory access")
 			}
 			pc++
-			align, num, err := leb128.DecodeUint32(bytes.NewReader(body[pc:]))
+			align, _, read, err := readMemArg(pc, body)
 			if err != nil {
-				return fmt.Errorf("read memory align: %v", err)
+				return err
 			}
+			pc += read - 1
 			switch op {
 			case OpcodeI32Load:
 				if 1<<align > 32/8 {
@@ -239,13 +258,6 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return err
 				}
 			}
-			pc += num
-			// offset
-			_, num, err = leb128.DecodeUint32(bytes.NewReader(body[pc:]))
-			if err != nil {
-				return fmt.Errorf("read memory offset: %v", err)
-			}
-			pc += num - 1
 		} else if OpcodeMemorySize <= op && op <= OpcodeMemoryGrow {
 			if memory == nil {
 				return fmt.Errorf("unknown memory access")
@@ -1071,6 +1083,32 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
 						return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecI64x2AddName, err)
 					}
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Load, OpcodeVecV128Load8x8s, OpcodeVecV128Load8x8u, OpcodeVecV128Load16x4s, OpcodeVecV128Load16x4u,
+				OpcodeVecV128Load32x2s, OpcodeVecV128Load32x2u, OpcodeVecV128Load8Splat, OpcodeVecV128Load16Splat,
+				OpcodeVecV128Load32Splat, OpcodeVecV128Load64Splat,
+				OpcodeVecV128Load32zero, OpcodeVecV128Load64zero:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				pc += read - 1
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Store:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				pc += read - 1
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
 				}
 				valueTypeStack.push(ValueTypeV128)
 			default:

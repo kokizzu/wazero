@@ -328,12 +328,12 @@ type OpcodeVec = byte
 const (
 	// Loads and stores.
 	OpcodeVecV128Load        OpcodeVec = 0x00
-	OpcodeVecV128Load8x8_s   OpcodeVec = 0x01
-	OpcodeVecV128Load8x8_u   OpcodeVec = 0x02
-	OpcodeVecV128Load16x4_s  OpcodeVec = 0x03
-	OpcodeVecV128Load16x4_u  OpcodeVec = 0x04
-	OpcodeVecV128Load32x2_s  OpcodeVec = 0x05
-	OpcodeVecV128Load32x2_u  OpcodeVec = 0x06
+	OpcodeVecV128Load8x8s    OpcodeVec = 0x01
+	OpcodeVecV128Load8x8u    OpcodeVec = 0x02
+	OpcodeVecV128Load16x4s   OpcodeVec = 0x03
+	OpcodeVecV128Load16x4u   OpcodeVec = 0x04
+	OpcodeVecV128Load32x2s   OpcodeVec = 0x05
+	OpcodeVecV128Load32x2u   OpcodeVec = 0x06
 	OpcodeVecV128Load8Splat  OpcodeVec = 0x07
 	OpcodeVecV128Load16Splat OpcodeVec = 0x08
 	OpcodeVecV128Load32Splat OpcodeVec = 0x09
@@ -1049,12 +1049,12 @@ func MiscInstructionName(oc OpcodeMisc) string {
 
 const (
 	OpcodeVecV128LoadName                  = "v128.load"
-	OpcodeVecV128Load8x8_sName             = "v128.load8x8_s"
-	OpcodeVecV128Load8x8_uName             = "v128.load8x8_u"
-	OpcodeVecV128Load16x4_sName            = "v128.load16x4_s"
-	OpcodeVecV128Load16x4_uName            = "v128.load16x4_u"
-	OpcodeVecV128Load32x2_sName            = "v128.load32x2_s"
-	OpcodeVecV128Load32x2_uName            = "v128.load32x2_u"
+	OpcodeVecV128Load8x8SName              = "v128.load8x8_s"
+	OpcodeVecV128Load8x8UName              = "v128.load8x8_u"
+	OpcodeVecV128Load16x4SName             = "v128.load16x4_s"
+	OpcodeVecV128Load16x4UName             = "v128.load16x4_u"
+	OpcodeVecV128Load32x2SName             = "v128.load32x2_s"
+	OpcodeVecV128Load32x2UName             = "v128.load32x2_u"
 	OpcodeVecV128Load8SplatName            = "v128.load8_splat"
 	OpcodeVecV128Load16SplatName           = "v128.load16_splat"
 	OpcodeVecV128Load32SplatName           = "v128.load32_splat"
@@ -1288,12 +1288,12 @@ const (
 
 var vectorInstructionName = map[OpcodeVec]string{
 	OpcodeVecV128Load:                  OpcodeVecV128LoadName,
-	OpcodeVecV128Load8x8_s:             OpcodeVecV128Load8x8_sName,
-	OpcodeVecV128Load8x8_u:             OpcodeVecV128Load8x8_uName,
-	OpcodeVecV128Load16x4_s:            OpcodeVecV128Load16x4_sName,
-	OpcodeVecV128Load16x4_u:            OpcodeVecV128Load16x4_uName,
-	OpcodeVecV128Load32x2_s:            OpcodeVecV128Load32x2_sName,
-	OpcodeVecV128Load32x2_u:            OpcodeVecV128Load32x2_uName,
+	OpcodeVecV128Load8x8s:              OpcodeVecV128Load8x8SName,
+	OpcodeVecV128Load8x8u:              OpcodeVecV128Load8x8UName,
+	OpcodeVecV128Load16x4s:             OpcodeVecV128Load16x4SName,
+	OpcodeVecV128Load16x4u:             OpcodeVecV128Load16x4UName,
+	OpcodeVecV128Load32x2s:             OpcodeVecV128Load32x2SName,
+	OpcodeVecV128Load32x2u:             OpcodeVecV128Load32x2UName,
 	OpcodeVecV128Load8Splat:            OpcodeVecV128Load8SplatName,
 	OpcodeVecV128Load16Splat:           OpcodeVecV128Load16SplatName,
 	OpcodeVecV128Load32Splat:           OpcodeVecV128Load32SplatName,

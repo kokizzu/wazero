@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"math"
 	"math/bits"
@@ -582,7 +583,12 @@ func (e *engine) lowerIR(ir *wazeroir.CompilationResult) (*code, error) {
 			op.us[0] = o.Lo
 			op.us[1] = o.Hi
 		case *wazeroir.OperationAddV128:
-			op.b1 = byte(o.Shape)
+			op.b1 = o.Shape
+		case *wazeroir.OperationLoadV128:
+			op.b1 = o.Type
+			op.us = make([]uint64, 2)
+			op.us[0] = uint64(o.Arg.Alignment)
+			op.us[1] = uint64(o.Arg.Offset)
 		default:
 			return nil, fmt.Errorf("unreachable: a bug in wazeroir engine")
 		}
@@ -1832,6 +1838,128 @@ func (ce *callEngine) callNativeFunc(ctx context.Context, callCtx *wasm.CallCont
 				yHigh, yLow := ce.popValue(), ce.popValue()
 				ce.pushValue(xLow + yLow)
 				ce.pushValue(xHigh + yHigh)
+			}
+			frame.pc++
+		case wazeroir.OperationKindV128Load:
+			offset := ce.popMemoryOffset(op)
+			switch op.b1 {
+			case wazeroir.LoadV128Type128:
+				lo, ok := memoryInst.ReadUint64Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(lo)
+				hi, ok := memoryInst.ReadUint64Le(ctx, offset+4)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(hi)
+			case wazeroir.LoadV128Type8x8s:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(
+					uint64(int8(data[3]))<<48 | uint64(int8(data[2]))<<32 | uint64(int8(data[1]))<<16 | uint64(int8(data[0])),
+				)
+				ce.pushValue(
+					uint64(int8(data[7]))<<48 | uint64(int8(data[6]))<<32 | uint64(int8(data[5]))<<16 | uint64(int8(data[4])),
+				)
+			case wazeroir.LoadV128Type8x8u:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(
+					uint64(data[3])<<48 | uint64(data[2])<<32 | uint64(data[1])<<16 | uint64(data[0]),
+				)
+				ce.pushValue(
+					uint64(data[7])<<48 | uint64(data[6])<<32 | uint64(data[5])<<16 | uint64(data[4]),
+				)
+			case wazeroir.LoadV128Type16x4s:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(
+					uint64(int16(binary.LittleEndian.Uint16(data[2:])))<<32 |
+						uint64(int16(binary.LittleEndian.Uint16(data))),
+				)
+				ce.pushValue(
+					uint64(int16(binary.LittleEndian.Uint16(data[6:])))<<32 |
+						uint64(int16(binary.LittleEndian.Uint16(data[4:]))),
+				)
+			case wazeroir.LoadV128Type16x4u:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(
+					uint64(binary.LittleEndian.Uint16(data[2:]))<<32 | uint64(binary.LittleEndian.Uint16(data)),
+				)
+				ce.pushValue(
+					uint64(binary.LittleEndian.Uint16(data[6:]))<<32 | uint64(binary.LittleEndian.Uint16(data[4:])),
+				)
+			case wazeroir.LoadV128Type32x2s:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(uint64(int32(binary.LittleEndian.Uint32(data))))
+				ce.pushValue(uint64(int32(binary.LittleEndian.Uint32(data[4:]))))
+			case wazeroir.LoadV128Type32x2u:
+				data, ok := memoryInst.Read(ctx, offset, 8)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(uint64(binary.LittleEndian.Uint32(data)))
+				ce.pushValue(uint64(binary.LittleEndian.Uint32(data[4:])))
+			case wazeroir.LoadV128Type8Splat:
+				v, ok := memoryInst.ReadByte(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				v8 := uint64(v)<<56 | uint64(v)<<48 | uint64(v)<<40 | uint64(v)<<32 |
+					uint64(v)<<24 | uint64(v)<<16 | uint64(v)<<8 | uint64(v)
+				ce.pushValue(v8)
+				ce.pushValue(v8)
+			case wazeroir.LoadV128Type16Splat:
+				v, ok := memoryInst.ReadUint16Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				v4 := uint64(v)<<48 | uint64(v)<<32 | uint64(v)<<16 | uint64(v)
+				ce.pushValue(v4)
+				ce.pushValue(v4)
+			case wazeroir.LoadV128Type32Splat:
+				v, ok := memoryInst.ReadUint32Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				vv := uint64(v)<<32 | uint64(v)
+				ce.pushValue(vv)
+				ce.pushValue(vv)
+			case wazeroir.LoadV128Type64Splat:
+				lo, ok := memoryInst.ReadUint64Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(lo)
+				ce.pushValue(lo)
+			case wazeroir.LoadV128Type32zero:
+				lo, ok := memoryInst.ReadUint32Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(uint64(lo))
+				ce.pushValue(0)
+			case wazeroir.LoadV128Type64zero:
+				lo, ok := memoryInst.ReadUint64Le(ctx, offset)
+				if !ok {
+					panic(wasmruntime.ErrRuntimeOutOfBoundsMemoryAccess)
+				}
+				ce.pushValue(lo)
+				ce.pushValue(0)
 			}
 			frame.pc++
 		}

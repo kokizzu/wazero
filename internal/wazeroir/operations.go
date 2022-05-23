@@ -390,6 +390,7 @@ const (
 	OperationKindTableFill
 	OperationKindConstV128
 	OperationKindV128Add
+	OperationKindV128Load
 )
 
 type Label struct {
@@ -569,10 +570,10 @@ func (o *OperationGlobalSet) Kind() OperationKind {
 	return OperationKindGlobalSet
 }
 
-// MemoryImmediate is the "memarg" to all memory instructions.
+// MemoryArg is the "memarg" to all memory instructions.
 //
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#memory-instructions%E2%91%A0
-type MemoryImmediate struct {
+type MemoryArg struct {
 	// Alignment the expected alignment (expressed as the exponent of a power of 2). Default to the natural alignment.
 	//
 	// "Natural alignment" is defined here as the smallest power of two that can hold the size of the value type. Ex
@@ -586,7 +587,7 @@ type MemoryImmediate struct {
 
 type OperationLoad struct {
 	Type UnsignedType
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationLoad) Kind() OperationKind {
@@ -595,7 +596,7 @@ func (o *OperationLoad) Kind() OperationKind {
 
 type OperationLoad8 struct {
 	Type SignedInt
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationLoad8) Kind() OperationKind {
@@ -604,7 +605,7 @@ func (o *OperationLoad8) Kind() OperationKind {
 
 type OperationLoad16 struct {
 	Type SignedInt
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationLoad16) Kind() OperationKind {
@@ -613,7 +614,7 @@ func (o *OperationLoad16) Kind() OperationKind {
 
 type OperationLoad32 struct {
 	Signed bool
-	Arg    *MemoryImmediate
+	Arg    *MemoryArg
 }
 
 func (o *OperationLoad32) Kind() OperationKind {
@@ -622,7 +623,7 @@ func (o *OperationLoad32) Kind() OperationKind {
 
 type OperationStore struct {
 	Type UnsignedType
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationStore) Kind() OperationKind {
@@ -632,7 +633,7 @@ func (o *OperationStore) Kind() OperationKind {
 type OperationStore8 struct {
 	// TODO: Semantically Type doesn't affect operation so consider deleting this field.
 	Type UnsignedInt
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationStore8) Kind() OperationKind {
@@ -642,7 +643,7 @@ func (o *OperationStore8) Kind() OperationKind {
 type OperationStore16 struct {
 	// TODO: Semantically Type doesn't affect operation so consider deleting this field.
 	Type UnsignedInt
-	Arg  *MemoryImmediate
+	Arg  *MemoryArg
 }
 
 func (o *OperationStore16) Kind() OperationKind {
@@ -650,7 +651,7 @@ func (o *OperationStore16) Kind() OperationKind {
 }
 
 type OperationStore32 struct {
-	Arg *MemoryImmediate
+	Arg *MemoryArg
 }
 
 // Kind implements Operation.Kind.
@@ -1216,4 +1217,46 @@ type OperationAddV128 struct {
 // Kind implements Operation.Kind.
 func (o *OperationAddV128) Kind() OperationKind {
 	return OperationKindV128Add
+}
+
+type LoadV128Type = byte
+
+const (
+	// LoadV128Type128 corresponds to wasm.OpcodeVecV128LoadName.
+	LoadV128Type128 LoadV128Type = iota
+	// LoadV128Type8x8s corresponds to wasm.OpcodeVecV128Load8x8SName.
+	LoadV128Type8x8s
+	// LoadV128Type8x8u corresponds to wasm.OpcodeVecV128Load8x8UName.
+	LoadV128Type8x8u
+	// LoadV128Type16x4s corresponds to wasm.OpcodeVecV128Load16x4SName
+	LoadV128Type16x4s
+	// LoadV128Type16x4u corresponds to wasm.OpcodeVecV128Load16x4UName
+	LoadV128Type16x4u
+	// LoadV128Type32x2s corresponds to wasm.OpcodeVecV128Load32x2SName
+	LoadV128Type32x2s
+	// LoadV128Type32x2u corresponds to wasm.OpcodeVecV128Load32x2UName
+	LoadV128Type32x2u
+	// LoadV128Type8Splat corresponds to wasm.OpcodeVecV128Load8SplatName
+	LoadV128Type8Splat
+	// LoadV128Type16Splat corresponds to wasm.OpcodeVecV128Load16SplatName
+	LoadV128Type16Splat
+	// LoadV128Type32Splat corresponds to wasm.OpcodeVecV128Load32SplatName
+	LoadV128Type32Splat
+	// LoadV128Type64Splat corresponds to wasm.OpcodeVecV128Load64SplatName
+	LoadV128Type64Splat
+	// LoadV128Type32zero corresponds to wasm.OpcodeVecV128Load32zeroName
+	LoadV128Type32zero
+	// LoadV128Type64zero corresponds to wasm.OpcodeVecV128Load64zeroName
+	LoadV128Type64zero
+)
+
+// OperationLoadV128 implements Operation.
+type OperationLoadV128 struct {
+	Type LoadV128Type
+	Arg  *MemoryArg
+}
+
+// Kind implements Operation.Kind.
+func (o *OperationLoadV128) Kind() OperationKind {
+	return OperationKindV128Load
 }
