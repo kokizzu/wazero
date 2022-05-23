@@ -1089,6 +1089,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				OpcodeVecV128Load32x2s, OpcodeVecV128Load32x2u, OpcodeVecV128Load8Splat, OpcodeVecV128Load16Splat,
 				OpcodeVecV128Load32Splat, OpcodeVecV128Load64Splat,
 				OpcodeVecV128Load32zero, OpcodeVecV128Load64zero:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1100,20 +1101,21 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				}
 				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Store:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
 				}
-				// TODO: validate alignment
 				pc += read - 1
+				// TODO: validate alignment
 				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
-					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128StoreName, err)
 				}
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
-					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128StoreName, err)
 				}
-				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Load8Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1135,6 +1137,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				}
 				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Load16Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1156,6 +1159,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				}
 				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Load32Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1177,6 +1181,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				}
 				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Load64Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1198,6 +1203,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				}
 				valueTypeStack.push(ValueTypeV128)
 			case OpcodeVecV128Store8Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1218,6 +1224,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store8LaneName, err)
 				}
 			case OpcodeVecV128Store16Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1238,6 +1245,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
 				}
 			case OpcodeVecV128Store32Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1258,6 +1266,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store32LaneName, err)
 				}
 			case OpcodeVecV128Store64Lane:
+				pc++
 				_, _, read, err := readMemArg(pc, body)
 				if err != nil {
 					return err
@@ -1653,12 +1662,12 @@ func writeValueTypes(vts []ValueType, ret *strings.Builder) {
 	switch len(vts) {
 	case 0:
 	case 1:
-		ret.WriteString(api.ValueTypeName(vts[0]))
+		ret.WriteString(ValueTypeName(vts[0]))
 	default:
-		ret.WriteString(api.ValueTypeName(vts[0]))
+		ret.WriteString(ValueTypeName(vts[0]))
 		for _, vt := range vts[1:] {
 			ret.WriteString(", ")
-			ret.WriteString(api.ValueTypeName(vt))
+			ret.WriteString(ValueTypeName(vt))
 		}
 	}
 }

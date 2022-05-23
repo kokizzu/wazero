@@ -37,7 +37,7 @@ func TestInterpreter(t *testing.T) {
 	spectest.Run(t, testcases, interpreter.NewEngine, enabledFeatures, func(jsonname string) bool {
 		// TODO: remove after SIMD proposal
 		if strings.Contains(jsonname, "simd") {
-			return path.Base(jsonname) == "simd_load.json"
+			return path.Base(jsonname) == "simd_address.json"
 		}
 		return false
 	})
