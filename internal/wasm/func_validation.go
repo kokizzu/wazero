@@ -1094,6 +1094,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return err
 				}
 				pc += read - 1
+				// TODO: validate alignment
 				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
 				}
@@ -1103,6 +1104,7 @@ func (m *Module) validateFunctionWithMaxStackValues(
 				if err != nil {
 					return err
 				}
+				// TODO: validate alignment
 				pc += read - 1
 				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
@@ -1111,6 +1113,158 @@ func (m *Module) validateFunctionWithMaxStackValues(
 					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128LoadName, err)
 				}
 				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Load8Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Load8LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 8); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load8LaneName, err)
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Load16Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Load16LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 16); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load16LaneName, err)
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Load32Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Load32LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 32); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load32LaneName, err)
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Load64Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Load64LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 64); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Load64LaneName, err)
+				}
+				valueTypeStack.push(ValueTypeV128)
+			case OpcodeVecV128Store8Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Store8LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 8); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store8LaneName, err)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store8LaneName, err)
+				}
+			case OpcodeVecV128Store16Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Store16LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 16); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store16LaneName, err)
+				}
+			case OpcodeVecV128Store32Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Store32LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 32); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store32LaneName, err)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store32LaneName, err)
+				}
+			case OpcodeVecV128Store64Lane:
+				_, _, read, err := readMemArg(pc, body)
+				if err != nil {
+					return err
+				}
+				// TODO: validate alignment
+				pc += read
+				if pc >= uint64(len(body)) {
+					return fmt.Errorf("lane for %s not found", OpcodeVecV128Store64LaneName)
+				}
+				lane := body[pc]
+				if laneCeil := byte(128 / 64); lane >= laneCeil {
+					return fmt.Errorf("invalid lane index %d >= %d", lane, laneCeil)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeV128); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store64LaneName, err)
+				}
+				if err := valueTypeStack.popAndVerifyType(ValueTypeI32); err != nil {
+					return fmt.Errorf("cannot pop the operand for %s: %v", OpcodeVecV128Store64LaneName, err)
+				}
 			default:
 				return fmt.Errorf("TODO: SIMD instruction %s will be implemented in #506", vectorInstructionName[vecOpcode])
 			}
