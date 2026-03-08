@@ -34,9 +34,12 @@ func TestLookupFunction(t *testing.T) {
 		},
 		ElementSection: []wasm.ElementSegment{
 			{
-				OffsetExpr: wasm.ConstantExpression{Opcode: wasm.OpcodeI32Const, Data: []byte{0}},
-				Init:       []wasm.Index{0, 1},
-				Type:       wasm.RefTypeFuncref,
+				OffsetExpr: wasm.NewConstantExpressionFromI32(0),
+				Init: []wasm.ConstantExpression{
+					wasm.NewConstantExpressionFromOpcode(wasm.OpcodeRefFunc, []byte{0}),
+					wasm.NewConstantExpressionFromOpcode(wasm.OpcodeRefFunc, []byte{1}),
+				},
+				Type: wasm.RefTypeFuncref,
 			},
 		},
 		TableSection: []wasm.Table{{Type: wasm.RefTypeFuncref, Min: 100}},
